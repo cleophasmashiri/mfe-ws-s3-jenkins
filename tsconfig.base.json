@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@mfe-ws-1/data-access-user": [
+        "libs/shared/data-access-user/src/index.ts"
+      ],
+      "login/Routes": ["apps/login/src/app/remote-entry/entry.routes.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
