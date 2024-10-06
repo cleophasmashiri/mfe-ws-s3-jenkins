@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build Node Image') {
+            step('Build') {
+                sh "docker build -t my-cypress ."
+            }
+        }
+    }
+}
