@@ -4,9 +4,8 @@ variable "aws_region" {
   default     = "eu-north-1"
 }
 
-variable "
-" {
+variable "bucket_names" {
   description = "List of S3 bucket names to create"
   type        = list(string)
-  default     = ["dashboard"]
+  default     = ["hs-customer-dashboard", "hs-dashboard-v2"]
 }
