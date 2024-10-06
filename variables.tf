@@ -7,5 +7,5 @@ variable "aws_region" {
 variable "bucket_names" {
   description = "List of S3 bucket names to create"
   type        = list(string)
-  default     = ["dashboard-2019"]
+  default     = ["dashboard-2019","mfe-login-2019"]
 }
