@@ -11,7 +11,11 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types" // Add this to include your custom types
+    ]
   },
   "include": [
     "**/*.ts",
@@ -19,6 +23,7 @@
     "cypress.config.ts",
     "**/*.cy.ts",
     "**/*.cy.js",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "src/types/**/*.d.ts"
   ]
 }

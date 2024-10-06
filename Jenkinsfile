@@ -21,6 +21,7 @@ pipeline {
             }
             steps {
                 sh '''
+                    export PATH=$PATH:~/.docker/bin
                     ls -la
                     node --version
                     npm i --force --verbose
