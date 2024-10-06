@@ -18,4 +18,11 @@ export default {
     'jest-preset-angular/build/serializers/ng-snapshot',
     'jest-preset-angular/build/serializers/html-comment',
   ],
+  reporters: [
+    'default',
+    ['jest-junit', {
+      outputDirectory: './reports/junit', // Specify output directory
+      outputName: 'js-test-results.xml',                 // Specify the report file name
+    }]
+  ],
 };
