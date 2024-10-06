@@ -1,6 +1,5 @@
 provider "aws" {
-    region = "eu-north-1"
-    access_key = "test"
+    region = var.aws_region
     secret_key = "test"
     # only required for non virtual hosted-style endpoint use case.
     # https://registry.terraform.io/providers/hashicorp/aws/latest/docs#s3_force_path_style
