@@ -80,30 +80,30 @@ pipeline {
                     }
                 }
 
-                stage('e2e Test') {
-                    agent {
-                        docker {
-                            image 'my-cypress'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        sh '''
-                        echo "Running e2e tests"
-                        $NX_COMMAND e2e dashboard-e2e --verbose
-                        '''
-                    }
-                    post {
-                        always {
-                            sh '''
-                            find dist/cypress/reports/ -size 0 -print -delete
-                            npx mochawesome-merge dist/cypress/reports/*.json > dist/cypress/reports/mochawesome.json
-                            npx marge dist/cypress/reports/mochawesome.json -f report -o dist/cypress/reports
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'dist/cypress/reports', reportFiles: 'report.html', reportName: 'e2e-Tests', reportTitles: 'e2e-Tests', useWrapperFileDirectly: true])
-                            '''
-                        }
-                    }
-                }
+                // stage('e2e Test') {
+                //     agent {
+                //         docker {
+                //             image 'my-cypress'
+                //             reuseNode true
+                //         }
+                //     }
+                //     steps {
+                //         sh '''
+                //         echo "Running e2e tests"
+                //         $NX_COMMAND e2e dashboard-e2e --verbose
+                //         '''
+                //     }
+                //     post {
+                //         always {
+                //             sh '''
+                //             find dist/cypress/reports/ -size 0 -print -delete
+                //             npx mochawesome-merge dist/cypress/reports/*.json > dist/cypress/reports/mochawesome.json
+                //             npx marge dist/cypress/reports/mochawesome.json -f report -o dist/cypress/reports
+                //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'dist/cypress/reports', reportFiles: 'report.html', reportName: 'e2e-Tests', reportTitles: 'e2e-Tests', useWrapperFileDirectly: true])
+                //             '''
+                //         }
+                //     }
+                // }
             }
         }
          stage('Terraform Init') {

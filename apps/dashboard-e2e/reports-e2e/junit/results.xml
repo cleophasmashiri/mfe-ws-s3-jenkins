@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.901" tests="1" failures="1">
+  <testsuite name="Root Suite" timestamp="2024-10-06T11:05:25" tests="0" file="src/e2e/app.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="dashboard-e2e" timestamp="2024-10-06T11:05:25" tests="1" time="0.850" failures="1">
+    <testcase name="dashboard-e2e &quot;before each&quot; hook for &quot;should display welcome message&quot;" time="0.000" classname="&quot;before each&quot; hook for &quot;should display welcome message&quot;">
+      <failure message="`cy.visit()` failed trying to load:
+
+/
+
+We failed looking for this file at the path:
+
+/Users/user3/Documents/my/standardbank/repos/mfe-ws-1/apps/dashboard-e2e/
+
+The internal Cypress web server responded with:
+
+  &gt; 404: Not Found
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `dashboard-e2e`" type="CypressError"><![CDATA[CypressError: `cy.visit()` failed trying to load:
+
+/
+
+We failed looking for this file at the path:
+
+/Users/user3/Documents/my/standardbank/repos/mfe-ws-1/apps/dashboard-e2e/
+
+The internal Cypress web server responded with:
+
+  > 404: Not Found
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `dashboard-e2e`
+    at <unknown> (http://localhost:51606/__cypress/runner/cypress_runner.js:131634:76)
+    at visitFailedByErr (http://localhost:51606/__cypress/runner/cypress_runner.js:131049:12)
+    at <unknown> (http://localhost:51606/__cypress/runner/cypress_runner.js:131617:13)
+    at tryCatcher (http://localhost:51606/__cypress/runner/cypress_runner.js:1807:23)
+    at Promise._settlePromiseFromHandler (http://localhost:51606/__cypress/runner/cypress_runner.js:1519:31)
+    at Promise._settlePromise (http://localhost:51606/__cypress/runner/cypress_runner.js:1576:18)
+    at Promise._settlePromise0 (http://localhost:51606/__cypress/runner/cypress_runner.js:1621:10)
+    at Promise._settlePromises (http://localhost:51606/__cypress/runner/cypress_runner.js:1697:18)
+    at _drainQueueStep (http://localhost:51606/__cypress/runner/cypress_runner.js:2407:12)
+    at _drainQueue (http://localhost:51606/__cypress/runner/cypress_runner.js:2400:9)
+    at Async._drainQueues (http://localhost:51606/__cypress/runner/cypress_runner.js:2416:5)
+    at Async.drainQueues (http://localhost:51606/__cypress/runner/cypress_runner.js:2286:14)
+From Your Spec Code:
+    at Context.eval (webpack:///./src/e2e/app.cy.ts:5:0)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
