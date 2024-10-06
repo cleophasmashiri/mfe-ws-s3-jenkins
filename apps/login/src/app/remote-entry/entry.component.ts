@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '@mfe-ws-1/data-access-user';
 import { inject } from '@angular/core';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatButtonModule],
   selector: 'ng-mf-login-entry',
   template: `
     <div class="login-app">
@@ -19,7 +20,8 @@ import { inject } from '@angular/core';
           Password:
           <input type="password" name="password" [(ngModel)]="password" />
         </label>
-        <button type="submit">Login</button>
+        <!-- <button type="submit">Login</button> -->
+        <button type="submit" mat-raised-button color="primary">Login</button>
       </form>
       <div *ngIf="isLoggedIn$ | async">User is logged in!</div>
     </div>

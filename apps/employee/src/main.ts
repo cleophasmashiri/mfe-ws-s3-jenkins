@@ -1,4 +1,3 @@
-// import('./bootstrap').catch((err) => console.error(err));
 import { setRemoteDefinitions } from '@nx/angular/mf';
 
 fetch('/module-federation.manifest.json')
