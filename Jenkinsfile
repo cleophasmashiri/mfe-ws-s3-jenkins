@@ -44,7 +44,7 @@ pipeline {
                     steps {
                         sh '''
                             echo "Started Linting"
-                            $NX_COMMAND lint hs-customer-dashboard --verbose --format=html --output-file=dist/reports/linting-report.html
+                            $NX_COMMAND lint dashboard --verbose --format=html --output-file=dist/reports/linting-report.html
 
                         '''
                     }
@@ -72,8 +72,7 @@ pipeline {
                         always {
                             // This will visualize the JUnit XML report
                             junit 'reports/junit/js-test-results.xml'
-                            //publishHTML([reportName: 'Test Coverage', reportDir: 'coverage/apps/hs-customer-dashboard/feature', reportFiles: 'index.html', keepAll: true])
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage/libs/hs-customer-dashboard/feature', reportFiles: 'index.html', reportName: 'Unit-Tests-Coverage', reportTitles: 'Unit-Tests-Coverage', useWrapperFileDirectly: true])
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage/libs/dashboard', reportFiles: 'index.html', reportName: 'Unit-Tests-Coverage', reportTitles: 'Unit-Tests-Coverage', useWrapperFileDirectly: true])
                             archiveArtifacts artifacts: '**/reports/junit/*.xml', allowEmptyArchive: true
                             archiveArtifacts artifacts: '**/coverage/**', allowEmptyArchive: true
                         }
