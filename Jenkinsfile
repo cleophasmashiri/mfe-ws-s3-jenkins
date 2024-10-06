@@ -124,7 +124,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     // sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 mb s3://$S3_BUCKET_DEV'
-                    sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 sync dist/apps/dashboard s3://dashboard/ --delete'
+                    sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 sync dist/apps/dashboard s3://dashboard-2019/ --delete'
                 }
             }
         }
