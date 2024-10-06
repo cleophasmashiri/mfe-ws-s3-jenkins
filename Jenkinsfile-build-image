@@ -2,7 +2,7 @@ pipeline {
     agent any
     stages {
         stage('Build Node Image') {
-            step('Build') {
+            steps {
                 sh "docker build -t my-cypress ."
             }
         }
