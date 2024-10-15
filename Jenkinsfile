@@ -25,7 +25,7 @@ pipeline {
                     ls -la
                     node --version
                     npm i --force --verbose
-                    $NX_COMMAND reset
+                    # $NX_COMMAND reset
                     $NX_COMMAND build dashboard --configuration=production
                     ls -la
                    '''
