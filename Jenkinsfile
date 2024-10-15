@@ -27,6 +27,7 @@ pipeline {
                     npm i --force --verbose
                     # $NX_COMMAND reset
                     $NX_COMMAND build dashboard --configuration=production --verbose
+                    $NX_COMMAND build login --configuration=production --verbose
                     ls -la
                    '''
             }
@@ -46,6 +47,7 @@ pipeline {
                         sh '''
                             echo "Started Linting"
                             $NX_COMMAND lint dashboard --verbose --format=html --output-file=dist/reports/linting-report.html
+                            $NX_COMMAND lint login --verbose --format=html --output-file=dist/reports/linting-report.html
 
                         '''
                     }
@@ -67,6 +69,7 @@ pipeline {
                         echo "Running unit tests"
                          # $NX_COMMAND reset
                          $NX_COMMAND test dashboard --ci --codeCoverage --verbose 
+                         $NX_COMMAND test login --ci --codeCoverage --verbose 
                         '''
                     }
                     post {
@@ -74,6 +77,7 @@ pipeline {
                             // This will visualize the JUnit XML report
                             junit 'reports/junit/js-test-results.xml'
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage/libs/dashboard', reportFiles: 'index.html', reportName: 'Unit-Tests-Coverage', reportTitles: 'Unit-Tests-Coverage', useWrapperFileDirectly: true])
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'coverage/libs/login', reportFiles: 'index.html', reportName: 'Unit-Tests-Coverage', reportTitles: 'Unit-Tests-Coverage', useWrapperFileDirectly: true])
                             archiveArtifacts artifacts: '**/reports/junit/*.xml', allowEmptyArchive: true
                             archiveArtifacts artifacts: '**/coverage/**', allowEmptyArchive: true
                         }
@@ -125,6 +129,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     // sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 mb s3://$S3_BUCKET_DEV'
                     sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 sync dist/apps/dashboard s3://dashboard-2019/ --delete'
+                    sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 sync dist/apps/login s3://mfe-login-2019/ --delete'
                 }
             }
         }
