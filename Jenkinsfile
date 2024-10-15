@@ -8,7 +8,7 @@ pipeline {
         AWS_REGION = 'eu-north-1'
         DOCKER_NODE_IMAGE_NAME = 'my-custom-node'
         DOCKER_CYPRESS_IMAGE_NAME = 'my-cypress'
-        NX_COMMAND = 'nx'
+        NX_COMMAND = 'npx nx'
         skip_tests = true
     }
     stages {
