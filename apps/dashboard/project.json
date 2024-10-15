@@ -5,7 +5,6 @@
   "prefix": "ng-mf",
   "sourceRoot": "apps/dashboard/src",
   "tags": [],
-  "neverConnectToCloud": true,
   "targets": {
     "build": {
       "executor": "@nx/angular:webpack-browser",
