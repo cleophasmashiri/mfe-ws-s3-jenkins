@@ -1,5 +1,19 @@
 # main.tf
 
+resource "aws_s3_bucket_cors_configuration" "mfe_login_cors" {
+  for_each = toset(var.bucket_names)
+
+  bucket = each.value
+
+  cors_rule {
+    allowed_methods = ["GET"]           # Allow GET requests
+    allowed_origins = ["*"]             # Or specify the specific domain of the Nx shell app, e.g., "http://shell-app-domain.com"
+    allowed_headers = ["*"]             # Allow all headers or restrict it to specific headers
+    expose_headers  = ["ETag"]          # Optional, expose specific headers to the client
+    max_age_seconds = 3000              # Cache preflight requests for 3000 seconds
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "example" {
   for_each = toset(var.bucket_names)
 
