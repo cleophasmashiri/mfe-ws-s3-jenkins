@@ -1,7 +1,7 @@
 
 output "s3_bucket_names" {
   description = "The names of the created S3 buckets"
-  value       = [for bucket in aws_s3_bucket.multiple_buckets: bucket.bucket]
+  value       = [for bucket in aws_s3_bucket.multiple_buckets : bucket.bucket]
 }
 
 output "s3_bucket_websites" {
