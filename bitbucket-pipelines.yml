@@ -5,7 +5,7 @@ pipelines:
         caches:
           - node
         script:
-          - npm ci
+          - npm i --force --verbose
           # - npx nx workspace-lint
           - npx nx affected:lint --all
     - step:
