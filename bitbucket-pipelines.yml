@@ -1,0 +1,52 @@
+pipelines:
+  default:
+    - step:
+        name: Install Dependencies
+        caches:
+          - node
+        script:
+          - npm ci
+          # - npx nx workspace-lint
+          - npx nx affected:lint --all
+    - step:
+        name: Build Applications
+        script:
+          - npx nx affected:build --all --prod
+    - step:
+        name: Run Unit Tests
+        script:
+          - npx nx affected:test --all --code-coverage
+          - npx jest --ci --reporters=default --reporters=jest-junit
+        artifacts:
+          - coverage/**
+          - jest-report.xml
+    - step:
+        name: Run Cypress E2E Tests
+        caches:
+          - node
+        script:
+          - npx nx affected:e2e --all
+          - npx cypress run --browser chrome --reporter junit --reporter-options "mochaFile=cypress-reports/results-[hash].xml"
+        artifacts:
+          - cypress/reports/**
+#     - step:
+#         name: Deploy to S3 and Invalidate CloudFront
+#         script:
+#           - pipe: atlassian/aws-s3-deploy:0.4.0
+#             variables:
+#               ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+#               SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+#               REGION: $AWS_REGION
+#               LOCAL_PATH: "dist/apps"  # Path to the built Angular apps
+#               S3_BUCKET: $S3_BUCKET_NAME
+#               CACHE_CONTROL: "no-cache"
+#           - pipe: atlassian/aws-cloudfront-invalidate:0.2.0
+#             variables:
+#               ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+#               SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+#               DISTRIBUTION_ID: $CLOUDFRONT_DISTRIBUTION_ID
+#               PATHS: "/*"
+
+# definitions:
+#   caches:
+#     node: ~/.npm
