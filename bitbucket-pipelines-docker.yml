@@ -1,0 +1,21 @@
+image: docker:20.10.16
+
+pipelines:
+  default:
+    - step:
+        name: Build and Publish Docker Image
+        services:
+          - docker
+        script:
+          # Login to Docker Hub using environment variables
+          - echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+
+          # Build the Docker image
+          - docker build -t $DOCKER_HUB_USERNAME/angular-nx-app:$BITBUCKET_COMMIT .
+
+          # Tag the Docker image with "latest"
+          - docker tag $DOCKER_HUB_USERNAME/angular-nx-app:$BITBUCKET_COMMIT $DOCKER_HUB_USERNAME/angular-nx-app:latest
+
+          # Push the image to Docker Hub
+          - docker push $DOCKER_HUB_USERNAME/angular-nx-app:$BITBUCKET_COMMIT
+          - docker push $DOCKER_HUB_USERNAME/angular-nx-app:latest
