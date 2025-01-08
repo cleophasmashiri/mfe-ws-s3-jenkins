@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  bitbucket:
+    image: atlassian/bitbucket-server:latest
+    container_name: bitbucket
+    environment:
+      - JVM_SUPPORT_RECOMMENDED_ARGS=-XX:+IgnoreUnrecognizedVMOptions -Djava.net.preferIPv4Stack=true
+    ports:
+      - "7990:7990" # Bitbucket web interface
+      - "7999:7999" # SSH
+    volumes:
+      - bitbucket_data:/var/atlassian/application-data/bitbucket
+    depends_on:
+      - postgres
+    networks:
+      - atlassian
+
+  bamboo:
+    image: atlassian/bamboo-server:latest
+    container_name: bamboo
+    environment:
+      - JVM_SUPPORT_RECOMMENDED_ARGS=-XX:+IgnoreUnrecognizedVMOptions -Djava.net.preferIPv4Stack=true
+    ports:
+      - "8085:8085" # Bamboo web interface
+    volumes:
+      - bamboo_data:/var/atlassian/application-data/bamboo
+    depends_on:
+      - postgres
+    networks:
+      - atlassian
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: atlassian
+      POSTGRES_PASSWORD: atlassian
+      POSTGRES_DB: atlassian
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - atlassian
+
+volumes:
+  bitbucket_data:
+  bamboo_data:
+  postgres_data:
+
+networks:
+  atlassian:
+    driver: bridge
