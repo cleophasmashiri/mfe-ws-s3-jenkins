@@ -15,9 +15,9 @@ phases:
   pre_build:
     commands:
       - echo "Checking out the feature branch..."
-      - git fetch origin $FEATURE_BRANCH
-      - git checkout $FEATURE_BRANCH
-      - git reset --hard
+      # - git fetch origin $FEATURE_BRANCH
+      # - git checkout $FEATURE_BRANCH
+      # - git reset --hard
       - echo "Static list of apps: dashboard, login"
       - export APPS="dashboard login"
 #   build:
