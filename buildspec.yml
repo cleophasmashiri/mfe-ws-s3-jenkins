@@ -29,7 +29,7 @@ phases:
           echo "Running unit tests for $app..."
           nx test $app --coverage --output-file coverage-summary.json || exit 1
           mkdir -p dist/reports/$app/unit-tests
-          mv coverage/lcov-report/* dist/reports/$app/unit-tests/
+          mv coverage/apps/$app/* dist/reports/$app/unit-tests/
         done
       - echo "Unit tests completed."
       - echo "Running Cypress E2E tests for affected apps..."
