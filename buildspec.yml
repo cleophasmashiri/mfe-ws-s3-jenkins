@@ -12,15 +12,15 @@ phases:
       - echo "Installing dependencies..."
       - npm install -g nx
       - npm ci --force
-  # pre_build:
-  #   commands:
-  #     - echo "Determining affected apps..."
-  #     - export CHANGED_APPS=$(npx nx affected --target=test --select=projects)
-  #     - echo "Affected apps: $CHANGED_APPS"
-  #     - export BUILD_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
-  #     - echo "Build timestamp: $BUILD_TIMESTAMP"
-  #     - export BUILD_FOLDER="builds/build-${CODEBUILD_BUILD_NUMBER}-${BUILD_TIMESTAMP}"
-  #     - echo "Build folder: $BUILD_FOLDER"
+  pre_build:
+    commands:
+      - echo "Determining affected apps..."
+      - export CHANGED_APPS=$(npx nx affected --target=test --select=projects)
+      - echo "Affected apps: $CHANGED_APPS"
+      - export BUILD_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+      - echo "Build timestamp: $BUILD_TIMESTAMP"
+      - export BUILD_FOLDER="builds/build-${CODEBUILD_BUILD_NUMBER}-${BUILD_TIMESTAMP}"
+      - echo "Build folder: $BUILD_FOLDER"
 #   build:
 #     commands:
 #       - if [ -z "$CHANGED_APPS" ]; then echo "No affected apps. Skipping tests."; exit 0; fi
