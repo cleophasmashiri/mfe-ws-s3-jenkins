@@ -15,8 +15,8 @@ phases:
   pre_build:
     commands:
       - echo "Determining affected apps..."
-      - export FEATURE_BRANCH=${CODEBUILD_SOURCE_VERSION} 
       - |
+        export FEATURE_BRANCH=${CODEBUILD_SOURCE_VERSION}   
         if [ -z "$FEATURE_BRANCH" ]; then 
           echo "No FEATURE_BRANCH. Skipping build."; 
           exit 0; 
