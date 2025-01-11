@@ -15,7 +15,8 @@ phases:
   pre_build:
     commands:
       - echo "Determining affected apps..."
-      - export CHANGED_APPS=$(npx nx affected --target=test --select=projects)
+      - export FEATURE_BRANCH=${CODEBUILD_SOURCE_VERSION} 
+      - export CHANGED_APPS=$(npx nx affected --base=origin/main --head=$FEATURE_BRANCH --select=projects)
       - echo "Affected apps: $CHANGED_APPS"
       - export BUILD_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
       - echo "Build timestamp: $BUILD_TIMESTAMP"
