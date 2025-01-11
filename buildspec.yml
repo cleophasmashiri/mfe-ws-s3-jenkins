@@ -20,7 +20,7 @@ phases:
       # - git reset --hard
       # echo "Static list of apps: dashboard, login"
       - export APPS="dashboard login"
-#   build:
+  build:
     commands:
       - if [ -z "$APPS" ]; then echo "No affected apps. Skipping tests."; exit 0; fi
       - echo "Running unit tests for affected Nx apps..."
