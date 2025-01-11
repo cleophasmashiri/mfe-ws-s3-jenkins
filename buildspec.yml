@@ -17,11 +17,11 @@ phases:
       - echo "Determining affected apps..."
       - |
         export FEATURE_BRANCH=${CODEBUILD_SOURCE_VERSION}   
-        if [ -z "$FEATURE_BRANCH" ]; then 
-          echo "No FEATURE_BRANCH. Skipping build."; 
-          exit 0; 
-        fi
-      - export CHANGED_APPS=$(npx nx affected --base=origin/main --head=$FEATURE_BRANCH --select=projects)
+      #   if [ -z "$FEATURE_BRANCH" ]; then 
+      #     echo "No FEATURE_BRANCH. Skipping build."; 
+      #     exit 0; 
+      #   fi
+      # - export CHANGED_APPS=$(npx nx affected --base=origin/main --head=$FEATURE_BRANCH --select=projects)
       # - echo "Affected apps: $CHANGED_APPS"
       # - export BUILD_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
       # - echo "Build timestamp: $BUILD_TIMESTAMP"
