@@ -11,7 +11,7 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - npm install -g nx
-      - npm ci
+      - npm ci --force
   # pre_build:
   #   commands:
   #     - echo "Determining affected apps..."
