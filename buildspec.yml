@@ -19,7 +19,7 @@ phases:
       # - git fetch origin $FEATURE_BRANCH
       # - git checkout $FEATURE_BRANCH
       # - git reset --hard
-        echo "Static list of apps: dashboard, login"
+        # echo "Static list of apps: dashboard, login"
         export APPS="dashboard login"
 #   build:
     commands:
