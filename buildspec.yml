@@ -14,12 +14,13 @@ phases:
       - npm ci --force
   pre_build:
     commands:
-      - echo "Checking out the feature branch..."
+      - |
+        echo "Checking out the feature branch..."
       # - git fetch origin $FEATURE_BRANCH
       # - git checkout $FEATURE_BRANCH
       # - git reset --hard
-      - echo "Static list of apps: dashboard, login"
-      - export APPS="dashboard login"
+        echo "Static list of apps: dashboard, login"
+        export APPS="dashboard login"
 #   build:
     commands:
       - if [ -z "$APPS" ]; then echo "No affected apps. Skipping tests."; exit 0; fi
