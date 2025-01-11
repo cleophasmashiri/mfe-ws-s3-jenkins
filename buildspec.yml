@@ -14,48 +14,36 @@ phases:
       - npm ci --force
   pre_build:
     commands:
-      - echo "Determining affected apps..."
-      - |
-        export FEATURE_BRANCH=${CODEBUILD_SOURCE_VERSION}   
-        if [ -z "$FEATURE_BRANCH" ]; then 
-          echo "No FEATURE_BRANCH. Skipping build."; 
-          exit 0; 
-        fi
-      - export CHANGED_APPS=$(npx nx affected --base=origin/main --head=$FEATURE_BRANCH --select=projects)
-      - |  
-        if [ -z "$CHANGED_APPS" ]; then 
-          echo "No CHANGED_APPS. Skipping build."; 
-          exit 0; 
-        fi
-      - echo "Affected apps: $CHANGED_APPS"
-      # - export BUILD_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
-      # - echo "Build timestamp: $BUILD_TIMESTAMP"
-      # - export BUILD_FOLDER="builds/build-${CODEBUILD_BUILD_NUMBER}-${BUILD_TIMESTAMP}"
-      # - echo "Build folder: $BUILD_FOLDER"
+      - echo "Checking out the feature branch..."
+      - git fetch origin $FEATURE_BRANCH
+      - git checkout $FEATURE_BRANCH
+      - git reset --hard
+      - echo "Static list of apps: dashboard, login"
+      - export APPS="dashboard login"
 #   build:
-#     commands:
-#       - if [ -z "$CHANGED_APPS" ]; then echo "No affected apps. Skipping tests."; exit 0; fi
-#       - echo "Running unit tests for affected Nx apps..."
-#       - |
-#         for app in $CHANGED_APPS; do
-#           echo "Running unit tests for $app..."
-#           nx test $app --coverage --output-file coverage-summary.json || exit 1
-#           mkdir -p dist/reports/$app/unit-tests
-#           mv coverage/lcov-report/* dist/reports/$app/unit-tests/
-#         done
-#       - echo "Unit tests completed."
-#       - echo "Running Cypress E2E tests for affected apps..."
-#       - |
-#         for app in $CHANGED_APPS; do
-#           echo "Running E2E tests for $app..."
-#           nx e2e ${app}-e2e || exit 1
-#           mkdir -p dist/reports/$app/e2e
-#           cp -r cypress/screenshots dist/reports/$app/e2e/screenshots || echo "No screenshots to copy."
-#           cp -r cypress/videos dist/reports/$app/e2e/videos || echo "No videos to copy."
-#           cp -r cypress/reports/* dist/reports/$app/e2e/
-#         done
-#       - echo "Cypress E2E tests completed."
-#   post_build:
+    commands:
+      - if [ -z "$APPS" ]; then echo "No affected apps. Skipping tests."; exit 0; fi
+      - echo "Running unit tests for affected Nx apps..."
+      - |
+        for app in $APPS; do
+          echo "Running unit tests for $app..."
+          nx test $app --coverage --output-file coverage-summary.json || exit 1
+          mkdir -p dist/reports/$app/unit-tests
+          mv coverage/lcov-report/* dist/reports/$app/unit-tests/
+        done
+      - echo "Unit tests completed."
+      - echo "Running Cypress E2E tests for affected apps..."
+      - |
+        for app in $APPS; do
+          echo "Running E2E tests for $app..."
+          nx e2e ${app}-e2e || exit 1
+          mkdir -p dist/reports/$app/e2e
+          cp -r cypress/screenshots dist/reports/$app/e2e/screenshots || echo "No screenshots to copy."
+          cp -r cypress/videos dist/reports/$app/e2e/videos || echo "No videos to copy."
+          cp -r cypress/reports/* dist/reports/$app/e2e/
+        done
+      - echo "Cypress E2E tests completed."
+  post_build:
 #     commands:
 #       - echo "Uploading reports to S3..."
 #       - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
