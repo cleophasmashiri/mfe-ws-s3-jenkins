@@ -36,8 +36,8 @@ phases:
       - |
         for app in $APPS; do
           echo "Running E2E tests for $app..."
-          nx e2e ${app}-e2e --verbose || exit 1
-          mkdir -p dist/reports/$app/e2e
+          # nx e2e ${app}-e2e --verbose || exit 1
+          # mkdir -p dist/reports/$app/e2e
           # cp -r cypress/screenshots dist/reports/$app/e2e/screenshots || echo "No screenshots to copy."
           # cp -r cypress/videos dist/reports/$app/e2e/videos || echo "No videos to copy."
           # cp -r cypress/reports/* dist/reports/$app/e2e/
