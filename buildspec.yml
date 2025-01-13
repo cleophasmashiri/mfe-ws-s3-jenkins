@@ -4,6 +4,7 @@ env:
   variables:
     CYPRESS_RECORD_KEY: "your-cypress-record-key" # Optional, for Cypress Dashboard integration
     S3_BUCKET: "home-serve-build-reports-101"     # Your S3 bucket name
+    BUILD_FOLDER: 'reports'
 phases:
   install:
     runtime-versions:
@@ -46,9 +47,9 @@ phases:
   post_build:
     commands:
       - echo "Uploading reports to S3..."
-      - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
+      - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/$CODEBUILD_BUILD_NUMBER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
       # - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/e2e/ --recursive --exclude "*" --include "*e2e/*"
-      - echo "Reports uploaded to S3: $S3_BUCKET/$BUILD_FOLDER"
+      # - echo "Reports uploaded to S3: $S3_BUCKET/$BUILD_FOLDER/$CODEBUILD_BUILD_NUMBER"
 
 # artifacts:
 #   files:

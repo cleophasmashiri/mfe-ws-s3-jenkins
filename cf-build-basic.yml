@@ -1,181 +1,124 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation template for S3 build reports and Lambda for generating index.html"
+
 Parameters:
-  StaticWebsiteBucketName:
+  BuildReportsBucketName:
     Type: String
-    Default: "home-serve-build-reports-101"
-    Description: "Name of the S3 bucket for static website hosting."
+    Default: home-serve-build-reports-101
+    Description: "The name of the S3 bucket to store build reports."
 
 Resources:
-  StaticWebsiteBucket:
-    Type: "AWS::S3::Bucket"
+  # S3 Bucket for Build Reports
+  BuildReportsBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref StaticWebsiteBucketName
+      BucketName: !Ref BuildReportsBucketName
+      # AccessControl: PublicRead
       WebsiteConfiguration:
-        IndexDocument: "index.html"
-      AccessControl: "PublicRead"
-    Metadata:
-      Comment: "S3 bucket configured as a static website"
+        IndexDocument: index.html
+      LifecycleConfiguration:
+        Rules:
+          - Id: CleanupOldBuilds
+            Status: Enabled
+            ExpirationInDays: 30
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false      
 
-  StaticWebsiteBucketPolicy:
-    Type: "AWS::S3::BucketPolicy"
+  # S3 Bucket Policy to make the bucket publicly readable
+  BuildReportsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref StaticWebsiteBucket
+      Bucket: !Ref BuildReportsBucket
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Sid: PublicReadGetObject
+            Effect: Allow
             Principal: "*"
             Action: "s3:GetObject"
-            Resource: !Sub "${StaticWebsiteBucket.Arn}/*"
+            Resource: !Sub "arn:aws:s3:::${BuildReportsBucket}/*"          
 
-  LambdaExecutionRole:
-    Type: "AWS::IAM::Role"
+  # Lambda Function to Generate index.html
+  GenerateIndexLambda:
+    Type: AWS::Lambda::Function
     Properties:
-      RoleName: "S3IndexHtmlGeneratorRole"
+      FunctionName: !Sub "GenerateBuildIndex-${AWS::StackName}"
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const S3 = new AWS.S3();
+          const BUCKET_NAME = process.env.BUCKET_NAME;
+          const S3_BASE_URL = process.env.S3_BASE_URL;
+          const INDEX_FILE = 'index.html';
+
+          exports.handler = async () => {
+            const listParams = { Bucket: BUCKET_NAME, Prefix: 'reports/' };
+            const s3Objects = await S3.listObjectsV2(listParams).promise();
+
+            const builds = s3Objects.Contents.filter(obj => obj.Key.endsWith('/'))
+              .map(obj => obj.Key.split('/')[1])
+              .filter((key, index, self) => self.indexOf(key) === index); // Unique build IDs
+
+            let html = `<!DOCTYPE html><html><head><title>Build Reports</title></head><body>`;
+            html += `<h1>Build Reports</h1><table border="1">`;
+            html += `<tr><th>Build ID</th><th>Unit Test Reports</th><th>E2E Test Reports</th></tr>`;
+            builds.forEach(build => {
+              html += `<tr>`;
+              html += `<td>${build}</td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/unit-tests/index.html">Unit Test Reports</a></td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/e2e/index.html">E2E Test Reports</a></td>`;
+              html += `</tr>`;
+            });
+            html += `</table></body></html>`;
+
+            await S3.putObject({
+              Bucket: BUCKET_NAME,
+              Key: INDEX_FILE,
+              Body: html,
+              ContentType: 'text/html',
+            }).promise();
+
+            return { statusCode: 200, body: 'Index generated successfully.' };
+          };
+      Timeout: 10
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref BuildReportsBucket
+          S3_BASE_URL: !Sub "http://${BuildReportsBucket}.s3-website-${AWS::Region}.amazonaws.com"
+      Role: !GetAtt GenerateIndexLambdaRole.Arn
+
+  # IAM Role for Lambda
+  GenerateIndexLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Policies:
-        - PolicyName: "S3AccessPolicy"
+        - PolicyName: GenerateIndexLambdaPolicy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "s3:ListObjectsV2"
-                  - "s3:GetObject"
-                  - "s3:PutObject"
-                Resource: !Sub "${StaticWebsiteBucket.Arn}/*"
-              - Effect: "Allow"
-                Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
-                Resource: "arn:aws:logs:*:*:*"
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${BuildReportsBucket}"
+                  - !Sub "arn:aws:s3:::${BuildReportsBucket}/*"
 
-  GenerateIndexHtmlLambda:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      FunctionName: "GenerateIndexHtml"
-      Handler: "lambda_function.lambda_handler"
-      Runtime: "python3.9"
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Environment:
-        Variables:
-          BUCKET_NAME: !Ref StaticWebsiteBucketName
-      Code:
-        ZipFile: |
-          import boto3
-          s3 = boto3.client("s3")
-
-          BUCKET_NAME = "BUCKET_NAME_ENV"
-          BUILDS_FOLDER = "builds/"
-          OUTPUT_FILE = "index.html"
-
-          def generate_html(builds):
-              html_template = """
-              <!DOCTYPE html>
-              <html lang="en">
-              <head>
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>Builds List</title>
-                  <style>
-                      body {{
-                          font-family: Arial, sans-serif;
-                          margin: 0;
-                          padding: 20px;
-                      }}
-                      h1 {{
-                          text-align: center;
-                      }}
-                      table {{
-                          width: 100%;
-                          border-collapse: collapse;
-                          margin-top: 20px;
-                      }}
-                      th, td {{
-                          border: 1px solid #ddd;
-                          padding: 8px;
-                          text-align: center;
-                      }}
-                      th {{
-                          background-color: #f4f4f4;
-                      }}
-                      tr:hover {{
-                          background-color: #f1f1f1;
-                      }}
-                  </style>
-              </head>
-              <body>
-                  <h1>Builds List</h1>
-                  <table>
-                      <thead>
-                          <tr>
-                              <th>Build Number</th>
-                              <th>Date</th>
-                              <th>Unit Test Reports</th>
-                              <th>E2E Test Reports</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {rows}
-                      </tbody>
-                  </table>
-              </body>
-              </html>
-              """
-              rows = ""
-              for build_id, build_date, build_key in builds:
-                  unit_test_link = f"https://{BUCKET_NAME}.s3.amazonaws.com/{build_key}unit-tests/index.html"
-                  e2e_test_link = f"https://{BUCKET_NAME}.s3.amazonaws.com/{build_key}e2e/index.html"
-                  rows += f"""
-                  <tr>
-                      <td>{build_id}</td>
-                      <td>{build_date}</td>
-                      <td><a href="{unit_test_link}" target="_blank">Unit Test Reports</a></td>
-                      <td><a href="{e2e_test_link}" target="_blank">E2E Test Reports</a></td>
-                  </tr>
-                  """
-              return html_template.format(rows=rows)
-
-          def list_builds():
-              builds = []
-              paginator = s3.get_paginator("list_objects_v2")
-              for page in paginator.paginate(Bucket=BUCKET_NAME, Prefix=BUILDS_FOLDER, Delimiter="/"):
-                  if "CommonPrefixes" in page:
-                      for prefix in page["CommonPrefixes"]:
-                          folder_name = prefix["Prefix"].split("/")[-2]
-                          build_parts = folder_name.split("-")
-                          if len(build_parts) == 2:
-                              builds.append((build_parts[0], build_parts[1], prefix["Prefix"]))
-              return builds
-
-          def upload_html(html_content):
-              s3.put_object(
-                  Bucket=BUCKET_NAME,
-                  Key=OUTPUT_FILE,
-                  Body=html_content,
-                  ContentType="text/html"
-              )
-
-          def lambda_handler(event, context):
-              builds = list_builds()
-              if not builds:
-                  return {"statusCode": 404, "body": "No builds found"}
-              html_content = generate_html(builds)
-              upload_html(html_content)
-              return {"statusCode": 200, "body": "Index HTML generated successfully"}
-      Timeout: 30
-
-  GenerateIndexHtmlPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      FunctionName: !GetAtt GenerateIndexHtmlLambda.Arn
-      Action: "lambda:InvokeFunction"
-      Principal: "s3.amazonaws.com"
-      SourceArn: !GetAtt StaticWebsiteBucket.Arn
+Outputs:
+  BuildReportsBucketUrl:
+    Value: !Sub "http://${BuildReportsBucket}.s3-website-${AWS::Region}.amazonaws.com"
+    Description: "The URL of the S3 bucket hosting the build reports."
