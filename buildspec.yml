@@ -43,12 +43,12 @@ phases:
           # cp -r cypress/reports/* dist/reports/$app/e2e/
         done
       - echo "Cypress E2E tests completed."
-  # post_build:
-#     commands:
-#       - echo "Uploading reports to S3..."
-#       - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
-#       - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/e2e/ --recursive --exclude "*" --include "*e2e/*"
-#       - echo "Reports uploaded to S3: $S3_BUCKET/$BUILD_FOLDER"
+  post_build:
+    commands:
+      - echo "Uploading reports to S3..."
+      - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
+      # - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/e2e/ --recursive --exclude "*" --include "*e2e/*"
+      - echo "Reports uploaded to S3: $S3_BUCKET/$BUILD_FOLDER"
 
 # artifacts:
 #   files:
