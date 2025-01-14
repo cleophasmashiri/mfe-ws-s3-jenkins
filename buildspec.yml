@@ -15,6 +15,12 @@ phases:
       - npm ci --force
   pre_build:
     commands:
+      - echo "Running CloudFormation template..."
+      - aws cloudformation deploy \
+        --stack-name cfm-build-reports \
+        --template-file cf-build-basic.yml \
+        --capabilities CAPABILITY_NAMED_IAM \
+
       - echo "Checking out the feature branch..."
       # - git fetch origin $FEATURE_BRANCH
       # - git checkout $FEATURE_BRANCH
@@ -50,6 +56,14 @@ phases:
       - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/$CODEBUILD_BUILD_NUMBER/unit-tests/ --recursive --exclude "*" --include "*unit-tests/*"
       # - aws s3 cp dist/reports/ s3://$S3_BUCKET/$BUILD_FOLDER/e2e/ --recursive --exclude "*" --include "*e2e/*"
       # - echo "Reports uploaded to S3: $S3_BUCKET/$BUILD_FOLDER/$CODEBUILD_BUILD_NUMBER"
+      - echo "Post build: Running Lambda function"
+      - |
+        aws lambda invoke \
+          --function-name GenerateBuildIndex-cfm-build-reports \
+          --invocation-type RequestResponse \
+          --log-type Tail \
+          output.json
+      - echo "Lambda function invoked successfully"
 
 # artifacts:
 #   files:

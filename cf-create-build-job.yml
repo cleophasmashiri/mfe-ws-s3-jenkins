@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  MyCodeBuildProject:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: "MyBuildProject"  # Name of the CodeBuild project
+      Description: "A project that builds an Angular app and runs tests"
+      Artifacts:
+        Type: "NO_ARTIFACTS"  # Specifies that the build does not produce any output artifact
+      Environment:
+        Type: "LINUX_CONTAINER"
+        ComputeType: "BUILD_GENERAL1_SMALL"  # Use other types like BUILD_GENERAL1_MEDIUM if needed
+        Image: "aws/codebuild/standard:5.0"  # Modify to fit your environment
+        EnvironmentVariables:
+          - Name: "AWS_DEFAULT_REGION"
+            Value: !Ref "AWS::Region"
+          - Name: "FEATURE_BRANCH"
+            Value: "default"  # Example environment variable
+      Source:
+        Type: "GITHUB"  # Change to match your source (S3, Bitbucket, etc.)
+        Location: "https://github.com/cleophasmashiri/mfe-ws-s3-jenkins.git"  # Replace with your repository URL
+      SourceVersion: "main"  # Default branch; change if needed
+      ServiceRole: "arn:aws:iam::022499026062:role/service-role/codebuild-mfe-code-build-2-service-role"  # IAM role for CodeBuild
+      TimeoutInMinutes: 60  # Timeout for the build process
+      BuildSpec: "buildspec.yml"
+
+# Outputs:
+#   CodeBuildServiceRoleArn:
+#     Description: "ARN of the CodeBuild Service Role"
+#     Value: !GetAtt CodeBuildServiceRole.Arn
