@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation template for building reports and Lambda for generating index.html"
+
+Parameters:
+  BuildReportsBucketName:
+    Type: String
+    Default: "home-serve-build-reports-101"
+    Description: "The name of the S3 bucket to store build reports."
+
+Resources:
+  # Lambda Function to Generate index.html
+  GenerateIndexLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "GenerateBuildIndex-${AWS::StackName}"
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const S3 = new AWS.S3();
+          const BUCKET_NAME = process.env.BUCKET_NAME;
+          const S3_BASE_URL = process.env.S3_BASE_URL;
+          const INDEX_FILE = 'index.html';
+
+          exports.handler = async () => {
+            const listParams = { Bucket: BUCKET_NAME, Prefix: 'reports/' };
+            const s3Objects = await S3.listObjectsV2(listParams).promise();
+
+            const builds = s3Objects.Contents.filter(obj => obj.Key.endsWith('/'))
+              .map(obj => obj.Key.split('/')[1])
+              .filter((key, index, self) => self.indexOf(key) === index); // Unique build IDs
+
+            let html = `<!DOCTYPE html><html><head><title>Build Reports</title></head><body>`;
+            html += `<h1>Build Reports</h1><table border="1">`;
+            html += `<tr><th>Build ID</th><th>Unit Test Reports</th><th>E2E Test Reports</th></tr>`;
+            builds.forEach(build => {
+              html += `<tr>`;
+              html += `<td>${build}</td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/unit-tests/index.html">Unit Test Reports</a></td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/e2e/index.html">E2E Test Reports</a></td>`;
+              html += `</tr>`;
+            });
+            html += `</table></body></html>`;
+
+            await S3.putObject({
+              Bucket: BUCKET_NAME,
+              Key: INDEX_FILE,
+              Body: html,
+              ContentType: 'text/html',
+            }).promise();
+
+            return { statusCode: 200, body: 'Index generated successfully.' };
+          };
+      Timeout: 10
+      Environment:
+        Variables:
+          BUCKET_NAME: $BuildReportsBucketName
+          S3_BASE_URL: !Sub "http://${BuildReportsBucketName}.s3-website-${AWS::Region}.amazonaws.com"
+      Role: !GetAtt GenerateIndexLambdaRole.Arn
+
+  # IAM Role for Lambda
+  GenerateIndexLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: GenerateIndexLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${BuildReportsBucketName}"
+                  - !Sub "arn:aws:s3:::${BuildReportsBucketName}/*"
+
+Outputs:
+  BuildReportsLambda:
+    Value: !GetAtt "GenerateIndexLambda.Arn"
+    Description: "The URL of the S3 bucket hosting the build reports."

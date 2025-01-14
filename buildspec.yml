@@ -15,11 +15,11 @@ phases:
       - npm ci --force
   pre_build:
     commands:
-      - echo "Running CloudFormation template..."
-      - aws cloudformation deploy \
-        --stack-name cfm-build-reports \
-        --template-file cf-build-basic.yml \
-        --capabilities CAPABILITY_NAMED_IAM \
+      # - echo "Running CloudFormation template..."
+      # - aws cloudformation deploy \
+      #   --stack-name cfm-build-reports \
+      #   --template-file cf-build-basic.yml \
+      #   --capabilities CAPABILITY_NAMED_IAM \
 
       - echo "Checking out the feature branch..."
       # - git fetch origin $FEATURE_BRANCH
