@@ -13,23 +13,25 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "GenerateBuildIndex-${AWS::StackName}"
-      Runtime: nodejs18.x
+      Runtime: nodejs16.x
       Handler: index.handler
       Code:
         ZipFile: |
           const AWS = require('aws-sdk');
           const S3 = new AWS.S3();
-          const BUCKET_NAME = process.env.BUCKET_NAME;
+          const BUCKET_NAME = 'home-serve-build-reports-101';
           const S3_BASE_URL = process.env.S3_BASE_URL;
           const INDEX_FILE = 'index.html';
 
           exports.handler = async () => {
             const listParams = { Bucket: BUCKET_NAME, Prefix: 'reports/' };
             const s3Objects = await S3.listObjectsV2(listParams).promise();
+            console.log({s3Objects});
 
-            const builds = s3Objects.Contents.filter(obj => obj.Key.endsWith('/'))
-              .map(obj => obj.Key.split('/')[1])
-              .filter((key, index, self) => self.indexOf(key) === index); // Unique build IDs
+            const builds = ['7','8','9','10','11'];
+            // s3Objects.Contents.filter(obj => obj.Key.endsWith('/'))
+            //   .map(obj => obj.Key.split('/')[1])
+            //   .filter((key, index, self) => self.indexOf(key) === index); // Unique build IDs
 
             let html = `<!DOCTYPE html><html><head><title>Build Reports</title></head><body>`;
             html += `<h1>Build Reports</h1><table border="1">`;
@@ -37,8 +39,8 @@ Resources:
             builds.forEach(build => {
               html += `<tr>`;
               html += `<td>${build}</td>`;
-              html += `<td><a href="${S3_BASE_URL}/reports/${build}/unit-tests/index.html">Unit Test Reports</a></td>`;
-              html += `<td><a href="${S3_BASE_URL}/reports/${build}/e2e/index.html">E2E Test Reports</a></td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/unit-tests/dashboard/unit-tests/index.html">Unit Test Reports</a></td>`;
+              html += `<td><a href="${S3_BASE_URL}/reports/${build}/e2e/dashboard/e2e/index.html">E2E Test Reports</a></td>`;
               html += `</tr>`;
             });
             html += `</table></body></html>`;
@@ -55,8 +57,8 @@ Resources:
       Timeout: 10
       Environment:
         Variables:
-          BUCKET_NAME: $BuildReportsBucketName
-          S3_BASE_URL: !Sub "http://${BuildReportsBucketName}.s3-website-${AWS::Region}.amazonaws.com"
+          BUCKET_NAME: $BUCKET_NAME
+          S3_BASE_URL: !Sub "http://home-serve-build-reports-101.s3-website-us-east-1.amazonaws.com"
       Role: !GetAtt GenerateIndexLambdaRole.Arn
 
   # IAM Role for Lambda
