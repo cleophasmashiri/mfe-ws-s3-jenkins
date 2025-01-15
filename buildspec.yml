@@ -60,7 +60,7 @@ phases:
       # - echo "Post build: Running Lambda function"
       - |
         aws lambda invoke \
-          --function-name GenerateBuildIndex-cfm-build-reports \
+          --function-name GenerateBuildIndex-cfm-build-reports-func \
           --invocation-type RequestResponse \
           --log-type Tail \
           output.json
