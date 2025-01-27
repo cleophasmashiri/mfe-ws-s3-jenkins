@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S3 Folder Structure</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 5px 0;
+    }
+    a {
+      text-decoration: none;
+      color: #1a73e8;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>S3 Folder Structure</h1>
+  <ul id="folder-list">
+    <!-- Links will be dynamically populated here -->
+  </ul>
+
+  <script>
+    // Simulated folder structure for S3
+    const s3Structure = {
+      "folder1": {
+        "subfolder1": {
+          "index.html": "folder1/subfolder1/index.html",
+        },
+        "index.html": "folder1/index.html"
+      },
+      "folder2": {
+        "index.html": "folder2/index.html",
+        "subfolder2": {
+          "subfolder3": {
+            "index.html": "folder2/subfolder2/subfolder3/index.html"
+          }
+        }
+      }
+    };
+
+    // Recursive function to build folder structure links
+    function buildFolderLinks(structure, parentElement) {
+      for (const key in structure) {
+        const item = structure[key];
+        const li = document.createElement("li");
+
+        if (typeof item === "string" && key === "index.html") {
+          // Create a link for the index.html file
+          const link = document.createElement("a");
+          link.href = item;
+          link.textContent = item;
+          li.appendChild(link);
+        } else if (typeof item === "object") {
+          // Create a subfolder
+          const folderName = document.createElement("strong");
+          folderName.textContent = key;
+          li.appendChild(folderName);
+
+          // Create a nested list
+          const nestedList = document.createElement("ul");
+          buildFolderLinks(item, nestedList);
+          li.appendChild(nestedList);
+        }
+
+        parentElement.appendChild(li);
+      }
+    }
+
+    // Initialize the folder list
+    const folderList = document.getElementById("folder-list");
+    buildFolderLinks(s3Structure, folderList);
+  </script>
+</body>
+</html>

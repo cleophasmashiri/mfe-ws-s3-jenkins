@@ -110,21 +110,22 @@ pipeline {
                 // }
             }
         }
-         stage('Terraform Init') {
+         stage('Deploy Init') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh 'terraform init'
+                    sh 'terraform plan'
                 }
             }
         }
-        stage('Terraform Apply') {
+        stage('Deploy Apply') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh 'terraform apply -auto-approve'
                 }
             }
         }
-        stage('Deploy App1 to LocalStack S3') {
+        stage('Deploy') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     // sh 'aws --endpoint-url=$S3_ENDPOINT_URL s3 mb s3://$S3_BUCKET_DEV'
