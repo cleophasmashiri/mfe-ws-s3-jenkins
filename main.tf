@@ -247,10 +247,10 @@ resource "aws_lb_listener" "http_listener" {
 }
 
 # Attach the ALB target group to the Lambda Function
-# resource "aws_lb_target_group_attachment" "target_group_attachment" {
-#   target_group_arn = aws_lb_target_group.lambda_target.arn
-#   target_id        = aws_lambda_function.my_lambda_function.arn
-# }
+resource "aws_lb_target_group_attachment" "target_group_attachment" {
+  target_group_arn = aws_lb_target_group.lambda_target.arn
+  target_id        = aws_lambda_function.my_lambda_function.arn
+}
 
 
 resource "aws_lambda_permission" "allow_alb_invoke" {

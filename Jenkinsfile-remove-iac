@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+     environment {
+        // S3_ENDPOINT_URL = 'http://192.168.0.6:4566'
+        S3_ENDPOINT_URL = 'https://s3.eu-north-1.amazonaws.com'
+        S3_BUCKET_DEV = 'homeserv-dev'
+        AWS_SECRET_ACCESS_KEY = credentials('aws-credentials')
+        AWS_REGION = 'eu-north-1'
+        DOCKER_NODE_IMAGE_NAME = 'my-custom-node'
+        DOCKER_CYPRESS_IMAGE_NAME = 'my-cypress'
+        NX_COMMAND = 'npx nx'
+        skip_tests = true
+    }
+    stages {
+       
+         stage('Remove iac') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh 'terraform destroy -auto-approve'
+                }
+            }
+        }
+    }
+}
