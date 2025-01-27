@@ -16,6 +16,7 @@ pipeline {
          stage('Remove iac') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh 'terraform init'
                     sh 'terraform destroy -auto-approve'
                 }
             }
