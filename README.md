@@ -28,3 +28,11 @@ docker run -d \
   jenkins-docker
 
 ```
+
+## Run S3 with VPC endpoint CF exampe.
+
+```
+
+ aws cloudformation deploy --stack-name cfm-build-reports --template-file cf/cf-s3-vpc-endpoint-ec2.yml --capabilities CAPABILITY_NAMED_IAM
+
+ ```
